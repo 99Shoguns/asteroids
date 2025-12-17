@@ -5,6 +5,7 @@ from logger import log_state, log_event
 from player import Player
 from asteroid import Asteroid
 from asteroidfield import AsteroidField
+from shot import Shot
 
 def endgame_state():
     # Keep final game state displayed until player closes game
@@ -33,11 +34,13 @@ def main():
     updatable = pygame.sprite.Group()
     drawable = pygame.sprite.Group()
     asteroids = pygame.sprite.Group()
+    shots = pygame.sprite.Group()
 
     # Add to Groups
     Player.containers = (updatable, drawable)
     Asteroid.containers = (updatable, drawable, asteroids)
     AsteroidField.containers = (updatable)
+    Shot.containers = (updatable, drawable, shots)
 
     # Objects
     player = Player((SCREEN_WIDTH / 2), (SCREEN_HEIGHT / 2))
@@ -61,6 +64,14 @@ def main():
         # Draw all objects in drawable group
         for obj in drawable:
             obj.draw(screen)
+
+        # Check for asteroids being shot
+        for asteroid in asteroids:
+            for shot in shots:
+                if shot.collides_with(asteroid):
+                    log_event("asteroid_shot")
+                    shot.kill()
+                    asteroid.split()
 
         # Check for collisions
         for asteroid in asteroids:
